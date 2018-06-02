@@ -226,20 +226,23 @@
                      v))))
 
 (defun pragmatapro-update-ligatures (start end)
-  (remove-text-properties start end '(display))
-  (save-excursion
-    (goto-char start)
-    (while (re-search-forward "[][~!@#$%^&*+=\\|:;\"<>./?≡-]" end t)
-      (let ((l (aref pragmatapro-lig-table (min 127 (char-before)))))
-        (catch 'break
-          (dolist (p l)
-            (let ((n (second p)))
-              (when (search-forward (first p) (+ (point) n) t)
-                (let ((s (- (point) n)))
-                  (put-text-property (1- s) s 'display (third p))
-                  (put-text-property s (point) 'display "")
-                  (throw 'break nil)))))
-          (forward-char))))))
+  (remove-text-properties start end '(display cursor))
+  (let ((pt (point)))
+    (save-excursion
+      (goto-char start)
+      (while (re-search-forward "[][~!@#$%^&*+=\\|:;\"<>./?≡-]" end t)
+        (let ((l (aref pragmatapro-lig-table (min 127 (char-before)))))
+          (catch 'break
+            (dolist (p l)
+              (let ((n (second p)))
+                (when (and (search-forward (first p) (+ (point) n) t)
+                           (not (<= (- (point) n 1) pt (point))))
+                  (let ((s (- (point) n)))
+                    (put-text-property (1- s) (point) 'cursor t)
+                    (put-text-property (1- s) s 'display (third p))
+                    (put-text-property s (point) 'display "")
+                    (throw 'break nil)))))
+            (forward-char)))))))
 
 (defun pragmatapro-ligatures ()
   (jit-lock-register 'pragmatapro-update-ligatures))
