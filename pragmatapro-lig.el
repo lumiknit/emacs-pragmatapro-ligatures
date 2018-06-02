@@ -225,8 +225,16 @@
                                  (> (length (car x)) (length (car y))))))
                      v))))
 
+(defun pragmatapro-remove-ligatures (start end)
+  (save-excursion
+    (let ((p (text-property-any (point) end 'ligature t)))
+      (while p
+        (let ((e (next-single-property-change p 'ligature)))
+          (remove-text-properties p e '(display ligature)))
+        (setq p (text-property-any p end 'ligature t))))))
+
 (defun pragmatapro-update-ligatures (start end)
-  (remove-text-properties start end '(display))
+  (pragmatapro-remove-ligatures start end)
   (save-excursion
     (goto-char start)
     (while (re-search-forward "[][~!@#$%^&*+=\\|:;\"<>./?≡-]" end t)
@@ -235,8 +243,11 @@
           (dolist (p l)
             (let ((l (second p)))
               (when (search-forward (first p) (+ (point) l) t)
-                (put-text-property (- (point) l 1) (point) 'display (third p))
-                (throw 'break nil))))
+                (let ((s (- (point) l)))
+                  (put-text-property (1- s) (point) 'ligature t)
+                  (put-text-property (1- s) s 'display (third p))
+                  (put-text-property s (point) 'display "")
+                  (throw 'break nil)))))
           (forward-char))))))
 
 (defun pragmatapro-ligatures ()
