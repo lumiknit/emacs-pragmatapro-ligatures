@@ -225,8 +225,10 @@
                                  (> (length (car x)) (length (car y))))))
                      v))))
 
-(defun pragmatapro-update-ligatures (start end)
-  (remove-text-properties start end '(display cursor))
+(defun pragmatapro-update-ligatures (start end l)
+  (setq start (min start (line-beginning-position)))
+  (setq end (max end (line-end-position)))
+  (save-excursion (remove-text-properties start end '(display cursor)))
   (let ((pt (point)))
     (save-excursion
       (goto-char start)
@@ -236,7 +238,7 @@
             (dolist (p l)
               (let ((n (second p)))
                 (when (and (search-forward (first p) (+ (point) n) t)
-                           (not (<= (- (point) n 1) pt (1+ (point)))))
+                           (not (<= (- (point) n) pt (1- (point)))))
                   (let ((s (- (point) n)))
                     (put-text-property (1- s) (point) 'cursor t)
                     (put-text-property (1- s) s 'display (third p))
@@ -244,7 +246,8 @@
                     (throw 'break nil)))))))))))
 
 (defun pragmatapro-ligatures ()
-  (jit-lock-register 'pragmatapro-update-ligatures))
+  (add-hook 'after-change-functions 'pragmatapro-update-ligatures)
+  (pragmatapro-update-ligatures 1 (buffer-size) 0))
 
 (add-hook 'text-mode-hook #'pragmatapro-ligatures)
 (add-hook 'prog-mode-hook #'pragmatapro-ligatures)
