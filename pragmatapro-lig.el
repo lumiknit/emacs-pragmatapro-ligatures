@@ -1,4 +1,11 @@
-;; For PragmataPro 0.826
+;; Emacs PramgataPro 0.826 Ligatures Support
+;; Author: lumiknit (aasr4r4@gmail.com)
+;; Version: 20180604
+
+;; Usage: JUST load this file (by load-file, require, ...)
+;;  If you want to use ligatures with some other modes,
+;;  put (add-hook MODE-HOOK #'pragmatapro-ligatures) in your setting file.
+
 (defconst pragmatapro-lig-alist
   '(("[ERROR]" #Xe380)
     ("[DEBUG]" #Xe381)
@@ -225,25 +232,39 @@
                                  (> (length (car x)) (length (car y))))))
                      v))))
 
+(defun pragmatapro-remove-ligatures (start end)
+  (let ((p (text-property-any start end 'ligature t))
+        (e nil))
+    (while p
+      (setq e (or (next-single-property-change p 'ligature) end))
+      (remove-list-of-text-properties p e '(ligature display))
+      (setq p (text-property-any e end 'ligature t)))))
+
 (defun pragmatapro-update-ligatures (start end l)
-  (setq start (min start (line-beginning-position)))
-  (setq end (max end (line-end-position)))
-  (save-excursion (remove-text-properties start end '(display cursor)))
+  (save-excursion
+    (goto-char start)
+    (setq start (line-beginning-position))
+    (goto-char end)
+    (setq end (line-end-position)))
+  (pragmatapro-remove-ligatures start end)
   (let ((pt (point)))
     (save-excursion
       (goto-char start)
-      (while (re-search-forward "[][~!@#$%^&*+=\\|:;\"<>./?≡-]" end t)
-        (let ((l (aref pragmatapro-lig-table (min 127 (char-before)))))
-          (catch 'break
-            (dolist (p l)
-              (let ((n (second p)))
-                (when (and (search-forward (first p) (+ (point) n) t)
-                           (not (<= (- (point) n) pt (1- (point)))))
-                  (let ((s (- (point) n)))
-                    (put-text-property (1- s) (point) 'cursor t)
-                    (put-text-property (1- s) s 'display (third p))
-                    (put-text-property s (point) 'display "")
-                    (throw 'break nil)))))))))))
+      (while (< (point) end)
+        (let* ((c (char-after))
+               (l (and c (aref pragmatapro-lig-table (min 127 c)))))
+          (forward-char 1)
+          (when l
+            (catch 'break
+              (dolist (p l)
+                (let ((n (second p)))
+                  (when (and (search-forward (first p) (+ (point) n) t))
+                    (let ((s (- (point) n 1)) (th (third p)))
+                      (put-text-property s (point) 'ligature t)
+                      (dotimes (i (length th))
+                        (put-text-property (+ s i) (+ s i 1) 'display
+                                           (string (aref th i))))
+                      (throw 'break nil))))))))))))
 
 (defun pragmatapro-ligatures ()
   (add-hook 'after-change-functions 'pragmatapro-update-ligatures)
