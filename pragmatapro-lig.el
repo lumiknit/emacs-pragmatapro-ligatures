@@ -271,8 +271,9 @@
                       (throw 'break nil))))))))))))
 
 (defun pragmatapro-ligatures ()
+  (let ((inhibit-modification-hooks nil))
   (add-hook 'after-change-functions 'pragmatapro-update-ligatures)
-  (pragmatapro-update-ligatures 1 (buffer-size) 0))
+  (pragmatapro-update-ligatures 1 (buffer-size) 0)))
 
 (add-hook 'text-mode-hook #'pragmatapro-ligatures)
 (add-hook 'prog-mode-hook #'pragmatapro-ligatures)
