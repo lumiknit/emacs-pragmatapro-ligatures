@@ -217,20 +217,24 @@
     ("\">" #Xea90)))
 
 (defconst pragmatapro-lig-table
-  (let ((v (make-vector 128 nil)))
-    (dolist (i pragmatapro-lig-alist)
-      (let ((s (car i))
-            (f (min 127 (aref (car i) 0)))
-            (c (cadr i)))
-        (aset v f (cons
-                   (list (substring s 1)
-                         (1- (length s))
-                         (concat (make-string (1- (length s)) ?\s) (string c)))
-                        (aref v f)))))
-    (vconcat (mapcar (lambda (l)
-                       (sort l (lambda (x y)
-                                 (> (length (car x)) (length (car y))))))
-                     v))))
+  (eval-when-compile
+    (let ((v (make-vector 128 nil)))
+      (dolist (i pragmatapro-lig-alist)
+        (let ((s (car i))
+              (f (min 127 (aref (car i) 0)))
+              (c (cadr i)))
+          (aset v f (cons
+                     (list (substring s 1)
+                           (1- (length s))
+                           (vconcat (mapcar
+                                     (lambda (x) (string x))
+                                     (concat (make-string (1- (length s)) ?\s)
+                                             (string c)))))
+                     (aref v f)))))
+      (vconcat (mapcar (lambda (l)
+                         (sort l (lambda (x y)
+                                   (> (length (car x)) (length (car y))))))
+                       v)))))
 
 (defun pragmatapro-remove-ligatures (start end)
   (let ((p (text-property-any start end 'ligature t))
@@ -263,7 +267,7 @@
                       (put-text-property s (point) 'ligature t)
                       (dotimes (i (length th))
                         (put-text-property (+ s i) (+ s i 1) 'display
-                                           (string (aref th i))))
+                                           (aref th i)))
                       (throw 'break nil))))))))))))
 
 (defun pragmatapro-ligatures ()
