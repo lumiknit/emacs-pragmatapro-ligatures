@@ -1,10 +1,13 @@
 ;; Emacs PramgataPro 0.826 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20180604
+;; Version: 20180605
 
 ;; Usage: JUST load this file (by load-file, require, ...)
-;;  If you want to use ligatures with some other modes,
-;;  put (add-hook MODE-HOOK #'pragmatapro-ligatures) in your setting file.
+;;        You can turn on lig for the current buffer by (pragmatapro-ligatures)
+;;        and turn off by (pragmatapro-ligatures 0).
+;;        If you want to use lig with some other modes,
+;;        put (add-hook MODE-HOOK 'pragmatapro-ligatures) in your init file.
+;;        Defaultly, it'll be enabled on text-mode & prog-mode.
 
 (defconst pragmatapro-lig-alist
   '(("[ERROR]" #Xe380)
@@ -237,6 +240,7 @@
                        v)))))
 
 (defun pragmatapro-remove-ligatures (start end)
+  "Remove ligatures in start-end in the current buffer"
   (let ((p (text-property-any start end 'ligature t))
         (e nil))
     (while p
@@ -244,16 +248,17 @@
       (remove-list-of-text-properties p e '(ligature display))
       (setq p (text-property-any e end 'ligature t)))))
 
-(defun pragmatapro-update-ligatures (start end l)
-  (save-excursion
-    (goto-char start)
-    (setq start (line-beginning-position))
-    (goto-char end)
-    (setq end (line-end-position)))
-  (pragmatapro-remove-ligatures start end)
-  (let ((pt (point)))
+(defun pragmatapro-update-ligatures (start end &optional l)
+  "Update ligatures in start-end in the current buffer"
+  (let ((modified (buffer-modified-p))
+        (inhibit-read-only t)
+        (pt (point)))
     (save-excursion
+      (goto-char end)
+      (setq end (line-end-position))
       (goto-char start)
+      (beginning-of-line)
+      (pragmatapro-remove-ligatures (point) end)
       (while (< (point) end)
         (let* ((c (char-after))
                (l (and c (aref pragmatapro-lig-table (min 127 c)))))
@@ -268,12 +273,18 @@
                       (dotimes (i (length th))
                         (put-text-property (+ s i) (+ s i 1) 'display
                                            (aref th i)))
-                      (throw 'break nil))))))))))))
+                      (throw 'break nil))))))))))
+    (set-buffer-modified-p modified)))
 
-(defun pragmatapro-ligatures ()
-  (let ((inhibit-modification-hooks nil))
-  (add-hook 'after-change-functions 'pragmatapro-update-ligatures)
-  (pragmatapro-update-ligatures 1 (buffer-size) 0)))
+(defun pragmatapro-ligatures (&optional arg)
+  "Turn on/off pragmatapro ligatures(turn on when arg > 0, turn off otherwise)"
+  (let ((inhibit-modification-hooks t))
+    (if (< (or arg 1) 1)
+        (progn
+          (remove-hook 'after-change-functions 'pragmatapro-update-ligatures t)
+          (pragmatapro-remove-ligatures 1 (buffer-size)))
+      (add-hook 'after-change-functions 'pragmatapro-update-ligatures t t)
+      (pragmatapro-update-ligatures 1 (buffer-size)))))
 
-(add-hook 'text-mode-hook #'pragmatapro-ligatures)
-(add-hook 'prog-mode-hook #'pragmatapro-ligatures)
+(add-hook 'text-mode-hook 'pragmatapro-ligatures)
+(add-hook 'prog-mode-hook 'pragmatapro-ligatures)
