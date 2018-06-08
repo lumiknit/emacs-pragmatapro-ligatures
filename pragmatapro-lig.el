@@ -1,6 +1,6 @@
 ;; Emacs PramgataPro 0.826 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20180605
+;; Version: 20180608
 
 ;; Usage: JUST load this file (by load-file, require, ...)
 ;;        You can turn on lig for the current buffer by (pragmatapro-ligatures)
@@ -278,6 +278,7 @@
 
 (defun pragmatapro-ligatures (&optional arg)
   "Turn on/off pragmatapro ligatures(turn on when arg > 0, turn off otherwise)"
+  (interactive)
   (let ((inhibit-modification-hooks t))
     (if (< (or arg 1) 1)
         (progn
@@ -288,3 +289,63 @@
 
 (add-hook 'text-mode-hook 'pragmatapro-ligatures)
 (add-hook 'prog-mode-hook 'pragmatapro-ligatures)
+
+;; ---
+
+(defvar pragmatapro-icons
+  (let ((tt (make-hash-table :size 30 :test 'equal)))
+    (puthash "lisp" "()" tt)
+    (puthash "lisp interaction" "()\xf41f" tt)
+    (puthash "scheme" "(λ)" tt)
+    (puthash "inferior scheme" "(λ)\xf41f" tt)
+    (puthash "dired" "\xe5fe" tt)
+    (puthash "html" "\xe736" tt)
+    (puthash "web" "\xe796" tt)
+    (puthash "scala" "\xe737" tt)
+    (puthash "c" "\xe61e" tt)
+    (puthash "c/*l" "\xe61e" tt)
+    (puthash "c++" "\xe61d" tt)
+    (puthash "c++//l" "\xe61d" tt)
+    (puthash "java//l" "\xe738" tt)
+    (puthash "java" "\xe738" tt)
+    (puthash "ruby" "\xe791" tt)
+    (puthash "inf-ruby" "\xe791\xf41f" tt)
+    (puthash "rails" "\xe73b" tt)
+    (puthash "python" "\xe606" tt)
+    (puthash "inferior python" "\xe606\xf41f" tt)
+    (puthash "php" "\xe73d" tt)
+    (puthash "markdown" "\xe73e" tt)
+    (puthash "css" "\xe749" tt)
+    (puthash "sass" "\xe74b" tt)
+    (puthash "javascript" "\xe60c" tt)
+    (puthash "js" "\xe74e" tt)
+    (puthash "jquery" "\xe750" tt)
+    (puthash "coffee" "\xe751" tt)
+    (puthash "angularjs" "\xe753" tt)
+    (puthash "swift" "\xe755" tt)
+    (puthash "less" "\xe758" tt)
+    (puthash "clojure" "\xe76a" tt)
+    (puthash "cidar" "\xe76a" tt)
+    (puthash "haskell" "\xe777" tt)
+    (puthash "interactive-haskell" "\xe777\xf41f" tt)
+    (puthash "hscompilation" "\xe777\x2611" tt)
+    (puthash "emacs-lisp" "\xe779" tt)
+    (puthash "fsharp" "\xe7a7" tt)
+    (puthash "rust" "\xe7a8" tt)
+    (puthash "d" "\xe7af" tt)
+    (puthash "erlang" "\xe7b1" tt)
+    (puthash "lua" "\xe620" tt)
+    (puthash "dart" "\xe798" tt)
+    (puthash "dart//l" "\xe798" tt)
+    (puthash "go" "\xe627" tt)
+    (puthash "git" "\xe630" tt)
+    (puthash "comint" "\xf41f" tt)
+    (puthash "fundamental" "\xf4a5" tt)
+    (puthash "shell" "\xe7a2" tt)
+    (puthash "elixir" "\xf499" tt)
+    (puthash "debugger" "\xf4a0" tt)
+    tt))
+
+(defun pragmatapro-get-mode-icon ()
+  (let ((z (gethash (downcase mode-name) pragmatapro-icons)))
+    (if z z mode-name)))
