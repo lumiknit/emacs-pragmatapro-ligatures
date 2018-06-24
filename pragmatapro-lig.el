@@ -1,6 +1,6 @@
 ;; Emacs PramgataPro 0.826 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20180608
+;; Version: 20180624
 
 ;; Usage: JUST load this file (by load-file, require, ...)
 ;;        You can turn on lig for the current buffer by (pragmatapro-ligatures)
@@ -252,6 +252,7 @@
   "Update ligatures in start-end in the current buffer"
   (let ((modified (buffer-modified-p))
         (inhibit-read-only t)
+        (case-fold-search nil)
         (pt (point)))
     (save-excursion
       (goto-char end)
