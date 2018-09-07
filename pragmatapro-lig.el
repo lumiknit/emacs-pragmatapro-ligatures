@@ -1,12 +1,12 @@
-;; Emacs PramgataPro 0.826 Ligatures Support
+;; Emacs PramgataPro 0.827 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20180624
+;; Version: 20180907
 
 ;; Usage: JUST load this file (by load-file, require, ...)
 ;;        You can turn on lig for the current buffer by (pragmatapro-ligatures)
 ;;        and turn off by (pragmatapro-ligatures 0).
 ;;        If you want to use lig with some other modes,
-;;        put (add-hook MODE-HOOK 'pragmatapro-ligatures) in your init file.
+;;        add (add-hook MODE-HOOK 'pragmatapro-ligatures) in your init file.
 ;;        Defaultly, it'll be enabled on text-mode & prog-mode.
 
 (defconst pragmatapro-lig-alist
@@ -160,6 +160,10 @@
     ("<|-" #Xe9f4)
     ("<||" #Xe9f5)
     ("<<|" #Xe9f6)
+    ("<-<" #Xe9f7)
+    ("<-->" #Xe9f8)
+    ("<<==" #Xe9f9)
+    ("<<=" #Xe9fa)
     ("=<<" #Xea00)
     ("==" #Xea01)
     ("===" #Xea02)
@@ -168,6 +172,8 @@
     ("=~" #Xea05)
     ("=>>" #Xea06)
     ("=/=" #Xea07)
+    ("=~=" #Xea08)
+    ("==>>" #Xea09)
     ;;("≡≡" #Xea10)
     ;;("≡≡≡" #Xea11)
     ;;("≡:≡" #Xea12)
@@ -181,6 +187,7 @@
     (">>^" #Xea27)
     (">>|" #Xea28)
     ("!>=" #Xea29)
+    (">->" #Xea2a)
     ("??" #Xea40)
     ("?~" #Xea41)
     ("?=" #Xea42)
@@ -211,13 +218,17 @@
     ("|<<" #Xea6a)
     ("||>" #Xea6b)
     ("|>>" #Xea6c)
+    ("|-" #Xea6d)
+    ("||-" #Xea6e)
     ("~=" #Xea70)
     ("~>" #Xea71)
     ("~~>" #Xea72)
     ("~>>" #Xea73)
     ("[[" #Xea80)
     ("]]" #Xea81)
-    ("\">" #Xea90)))
+    ("\">" #Xea90)
+    ("_|_" #Xea97)
+    ))
 
 (defconst pragmatapro-lig-table
   (eval-when-compile
@@ -267,9 +278,9 @@
           (when l
             (catch 'break
               (dolist (p l)
-                (let ((n (second p)))
-                  (when (and (search-forward (first p) (+ (point) n) t))
-                    (let ((s (- (point) n 1)) (th (third p)))
+                (let ((n (nth 1 p)))
+                  (when (and (search-forward (car p) (+ (point) n) t))
+                    (let ((s (- (point) n 1)) (th (nth 2 p)))
                       (put-text-property s (point) 'ligature t)
                       (dotimes (i (length th))
                         (put-text-property (+ s i) (+ s i 1) 'display
@@ -320,6 +331,7 @@
     (puthash "sass" "\xe74b" tt)
     (puthash "javascript" "\xe60c" tt)
     (puthash "js" "\xe74e" tt)
+    (puthash "typescript" "\xe628" tt)
     (puthash "jquery" "\xe750" tt)
     (puthash "coffee" "\xe751" tt)
     (puthash "angularjs" "\xe753" tt)
@@ -328,9 +340,10 @@
     (puthash "clojure" "\xe76a" tt)
     (puthash "cidar" "\xe76a" tt)
     (puthash "haskell" "\xe777" tt)
+    (puthash "haskell-cabal" "\xe777 Cabal" tt)
     (puthash "interactive-haskell" "\xe777\xf41f" tt)
     (puthash "hscompilation" "\xe777\x2611" tt)
-    (puthash "emacs-lisp" "\xe779" tt)
+    (puthash "emacs-lisp" "(\xe779)" tt)
     (puthash "fsharp" "\xe7a7" tt)
     (puthash "rust" "\xe7a8" tt)
     (puthash "d" "\xe7af" tt)
