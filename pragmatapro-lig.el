@@ -1,6 +1,6 @@
 ;; Emacs PramgataPro 0.827 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20180907
+;; Version: 20181031
 
 ;; Usage: JUST load this file (by load-file, require, ...)
 ;;        You can turn on lig for the current buffer by (pragmatapro-ligatures)
@@ -9,7 +9,7 @@
 ;;        add (add-hook MODE-HOOK 'pragmatapro-ligatures) in your init file.
 ;;        Defaultly, it'll be enabled on text-mode & prog-mode.
 
-(defconst pragmatapro-lig-alist
+(eval-when-compile (defconst pragmatapro-lig-alist
   '(("[ERROR]" #Xe380)
     ("[DEBUG]" #Xe381)
     ("[INFO]" #Xe382)
@@ -228,7 +228,7 @@
     ("]]" #Xea81)
     ("\">" #Xea90)
     ("_|_" #Xea97)
-    ))
+    )))
 
 (defconst pragmatapro-lig-table
   (eval-when-compile
@@ -344,6 +344,7 @@
     (puthash "interactive-haskell" "\xe777\xf41f" tt)
     (puthash "hscompilation" "\xe777\x2611" tt)
     (puthash "emacs-lisp" "(\xe779)" tt)
+    (puthash "prolog" "\xe7a1" tt)
     (puthash "fsharp" "\xe7a7" tt)
     (puthash "rust" "\xe7a8" tt)
     (puthash "d" "\xe7af" tt)
