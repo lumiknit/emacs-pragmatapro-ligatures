@@ -1,13 +1,10 @@
 ;; Emacs PramgataPro 0.827 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20181031
+;; Version: 20181215
 
-;; Usage: JUST load this file (by load-file, require, ...)
-;;        You can turn on lig for the current buffer by (pragmatapro-ligatures)
-;;        and turn off by (pragmatapro-ligatures 0).
-;;        If you want to use lig with some other modes,
-;;        add (add-hook MODE-HOOK 'pragmatapro-ligatures) in your init file.
-;;        Defaultly, it'll be enabled on text-mode & prog-mode.
+;; Usage: Turn on 'pragmatapro-lig-mode (using add-hook, etc.).
+;;        Or, use 'pragmatapro-lig-global-mode to turn on it globally.
+;;        It's recommended to compile it before using.
 
 (eval-when-compile (defconst pragmatapro-lig-alist
   '(("[ERROR]" #Xe380)
@@ -28,8 +25,8 @@
     ("!=" #Xe901)
     ("!==" #Xe902)
     ("!!!" #Xe903)
-    ("!≡" #Xe904)
-    ("!≡≡" #Xe905)
+    ;; ("!≡" #Xe904)
+    ;; ("!≡≡" #Xe905)
     ("!>" #Xe906)
     ("!=<" #Xe907)
     ("#(" #Xe920)
@@ -163,7 +160,7 @@
     ("<-<" #Xe9f7)
     ("<-->" #Xe9f8)
     ("<<==" #Xe9f9)
-    ("<<=" #Xe9fa)
+    ("<==" #Xe9fa)
     ("=<<" #Xea00)
     ("==" #Xea01)
     ("===" #Xea02)
@@ -229,7 +226,7 @@
     ("\">" #Xea90)
     ("_|_" #Xea97)
     )))
-
+(setq debug-on-error t)
 (defconst pragmatapro-lig-table
   (eval-when-compile
     (let ((v (make-vector 128 nil)))
@@ -237,18 +234,50 @@
         (let ((s (car i))
               (f (min 127 (aref (car i) 0)))
               (c (cadr i)))
-          (aset v f (cons
-                     (list (substring s 1)
-                           (1- (length s))
-                           (vconcat (mapcar
-                                     (lambda (x) (string x))
-                                     (concat (make-string (1- (length s)) ?\s)
-                                             (string c)))))
-                     (aref v f)))))
+          (let ((a (aref v f))
+                (r (substring s 1))
+                (lr (1- (length s))))
+            (aset
+             v f
+             (cons
+              (max (if a (car a) 0) lr)
+              (cons (list r lr
+                          (vconcat (mapcar
+                                    'string
+                                    (concat (make-string lr ?\s)
+                                            (string c)))))
+                    (and a (cdr a))))))))
       (vconcat (mapcar (lambda (l)
-                         (sort l (lambda (x y)
-                                   (> (length (car x)) (length (car y))))))
+                         (if l
+                             (cons (car l)
+                                   (sort (cdr l) (lambda (x y)
+                                                   (> (cadr x) (cadr y)))))
+                           nil))
                        v)))))
+
+(defconst pragmatapro-lig-use-table
+  (eval-when-compile
+    (let ((v (make-vector 128 nil)))
+      (dolist (i pragmatapro-lig-alist)
+        (let ((s (car i)))
+          (dotimes (j (length s))
+            (aset v (aref s j) t))))
+      v)))
+
+(defun pragmatapro-guess-range (start end)
+  (save-excursion
+    (let ((s start) (e end))
+      (let ((ss (progn (goto-char s) (line-beginning-position))))
+        (while (and (> s ss)
+                    (aref pragmatapro-lig-use-table
+                          (min 127 (or (char-before s) 127))))
+          (setq s (1- s))))
+      (let ((ee (progn (goto-char e) (line-end-position))))
+        (while (and (< e ee)
+                    (aref pragmatapro-lig-use-table
+                          (min 127 (or (char-after e) 127))))
+          (setq e (1+ e))))
+      (cons s e))))
 
 (defun pragmatapro-remove-ligatures (start end)
   "Remove ligatures in start-end in the current buffer"
@@ -263,103 +292,114 @@
   "Update ligatures in start-end in the current buffer"
   (let ((modified (buffer-modified-p))
         (inhibit-read-only t)
-        (case-fold-search nil)
-        (pt (point)))
+        (case-fold-search nil))
     (save-excursion
-      (goto-char end)
-      (setq end (line-end-position))
-      (goto-char start)
-      (beginning-of-line)
-      (pragmatapro-remove-ligatures (point) end)
+      (let ((z (pragmatapro-guess-range (or start (point))
+                                        (or end (point)))))
+        (goto-char (car z))
+        (setq end (cdr z)))
+      (when (<= (point) end)
+        (pragmatapro-remove-ligatures (point) end))
       (while (< (point) end)
         (let* ((c (char-after))
                (l (and c (aref pragmatapro-lig-table (min 127 c)))))
           (forward-char 1)
           (when l
             (catch 'break
-              (dolist (p l)
-                (let ((n (nth 1 p)))
-                  (when (and (search-forward (car p) (+ (point) n) t))
-                    (let ((s (- (point) n 1)) (th (nth 2 p)))
+              (let ((pt (point)))
+                (dolist (p (cdr l))
+                  (when (string-prefix-p
+                         (car p)
+                         (buffer-substring-no-properties
+                          pt (min (+ pt (car l)) (1+ (buffer-size)))))
+                    (forward-char (cadr p))
+                    (let ((s (1- pt)) (th (caddr p)))
                       (put-text-property s (point) 'ligature t)
-                      (dotimes (i (length th))
+                      (dotimes (i (1+ (cadr p)))
                         (put-text-property (+ s i) (+ s i 1) 'display
                                            (aref th i)))
                       (throw 'break nil))))))))))
     (set-buffer-modified-p modified)))
 
-(defun pragmatapro-ligatures (&optional arg)
-  "Turn on/off pragmatapro ligatures(turn on when arg > 0, turn off otherwise)"
-  (interactive)
+(define-minor-mode pragmatapro-lig-mode
+  "Compose pragmatapro's ligatures."
+  :lighter " PragLig"
   (let ((inhibit-modification-hooks t))
-    (if (< (or arg 1) 1)
-        (progn
-          (remove-hook 'after-change-functions 'pragmatapro-update-ligatures t)
-          (pragmatapro-remove-ligatures 1 (buffer-size)))
-      (add-hook 'after-change-functions 'pragmatapro-update-ligatures t t)
-      (pragmatapro-update-ligatures 1 (buffer-size)))))
+    (if pragmatapro-lig-mode
+        (progn ; Turn on
+          (add-hook 'after-change-functions 'pragmatapro-update-ligatures t t)
+          (pragmatapro-update-ligatures 1 (buffer-size)))
+      ;; Turn off
+      (remove-hook 'after-change-functions 'pragmatapro-update-ligatures t)
+      (pragmatapro-remove-ligatures 1 (buffer-size))))
+  pragmatapro-lig-mode)
 
-(add-hook 'text-mode-hook 'pragmatapro-ligatures)
-(add-hook 'prog-mode-hook 'pragmatapro-ligatures)
+(defun pragmatapro-lig-mode-on ()
+  (pragmatapro-lig-mode 1))
+
+(define-globalized-minor-mode pragmatapro-lig-global-mode
+  pragmatapro-lig-mode
+  pragmatapro-lig-mode-on)
 
 ;; ---
 
 (defvar pragmatapro-icons
-  (let ((tt (make-hash-table :size 30 :test 'equal)))
-    (puthash "lisp" "()" tt)
-    (puthash "lisp interaction" "()\xf41f" tt)
-    (puthash "scheme" "(λ)" tt)
-    (puthash "inferior scheme" "(λ)\xf41f" tt)
-    (puthash "dired" "\xe5fe" tt)
-    (puthash "html" "\xe736" tt)
-    (puthash "web" "\xe796" tt)
-    (puthash "scala" "\xe737" tt)
-    (puthash "c" "\xe61e" tt)
-    (puthash "c/*l" "\xe61e" tt)
-    (puthash "c++" "\xe61d" tt)
-    (puthash "c++//l" "\xe61d" tt)
-    (puthash "java//l" "\xe738" tt)
-    (puthash "java" "\xe738" tt)
-    (puthash "ruby" "\xe791" tt)
-    (puthash "inf-ruby" "\xe791\xf41f" tt)
-    (puthash "rails" "\xe73b" tt)
-    (puthash "python" "\xe606" tt)
-    (puthash "inferior python" "\xe606\xf41f" tt)
-    (puthash "php" "\xe73d" tt)
-    (puthash "markdown" "\xe73e" tt)
-    (puthash "css" "\xe749" tt)
-    (puthash "sass" "\xe74b" tt)
-    (puthash "javascript" "\xe60c" tt)
-    (puthash "js" "\xe74e" tt)
-    (puthash "typescript" "\xe628" tt)
-    (puthash "jquery" "\xe750" tt)
-    (puthash "coffee" "\xe751" tt)
-    (puthash "angularjs" "\xe753" tt)
-    (puthash "swift" "\xe755" tt)
-    (puthash "less" "\xe758" tt)
-    (puthash "clojure" "\xe76a" tt)
-    (puthash "cidar" "\xe76a" tt)
-    (puthash "haskell" "\xe777" tt)
-    (puthash "haskell-cabal" "\xe777 Cabal" tt)
-    (puthash "interactive-haskell" "\xe777\xf41f" tt)
-    (puthash "hscompilation" "\xe777\x2611" tt)
-    (puthash "emacs-lisp" "(\xe779)" tt)
-    (puthash "prolog" "\xe7a1" tt)
-    (puthash "fsharp" "\xe7a7" tt)
-    (puthash "rust" "\xe7a8" tt)
-    (puthash "d" "\xe7af" tt)
-    (puthash "erlang" "\xe7b1" tt)
-    (puthash "lua" "\xe620" tt)
-    (puthash "dart" "\xe798" tt)
-    (puthash "dart//l" "\xe798" tt)
-    (puthash "go" "\xe627" tt)
-    (puthash "git" "\xe630" tt)
-    (puthash "comint" "\xf41f" tt)
-    (puthash "fundamental" "\xf4a5" tt)
-    (puthash "shell" "\xe7a2" tt)
-    (puthash "elixir" "\xf499" tt)
-    (puthash "debugger" "\xf4a0" tt)
-    tt))
+  (eval-when-compile
+    (let ((tt (make-hash-table :size 127 :test 'equal)))
+      (puthash "lisp" "()" tt)
+      (puthash "lisp interaction" "()\xf41f" tt)
+      (puthash "scheme" "(λ)" tt)
+      (puthash "inferior scheme" "(λ)\xf41f" tt)
+      (puthash "dired" "\xe5fe" tt)
+      (puthash "html" "\xe736" tt)
+      (puthash "web" "\xe796" tt)
+      (puthash "scala" "\xe737" tt)
+      (puthash "c" "\xe61e" tt)
+      (puthash "c/*l" "\xe61e" tt)
+      (puthash "c++" "\xe61d" tt)
+      (puthash "c++//l" "\xe61d" tt)
+      (puthash "java//l" "\xe738" tt)
+      (puthash "java" "\xe738" tt)
+      (puthash "ruby" "\xe791" tt)
+      (puthash "inf-ruby" "\xe791\xf41f" tt)
+      (puthash "rails" "\xe73b" tt)
+      (puthash "python" "\xe606" tt)
+      (puthash "inferior python" "\xe606\xf41f" tt)
+      (puthash "php" "\xe73d" tt)
+      (puthash "markdown" "\xe73e" tt)
+      (puthash "css" "\xe749" tt)
+      (puthash "sass" "\xe74b" tt)
+      (puthash "javascript" "\xe60c" tt)
+      (puthash "js" "\xe74e" tt)
+      (puthash "typescript" "\xe628" tt)
+      (puthash "jquery" "\xe750" tt)
+      (puthash "coffee" "\xe751" tt)
+      (puthash "angularjs" "\xe753" tt)
+      (puthash "swift" "\xe755" tt)
+      (puthash "less" "\xe758" tt)
+      (puthash "clojure" "\xe76a" tt)
+      (puthash "cidar" "\xe76a" tt)
+      (puthash "haskell" "\xe777" tt)
+      (puthash "haskell-cabal" "\xe777 Cabal" tt)
+      (puthash "interactive-haskell" "\xe777\xf41f" tt)
+      (puthash "hscompilation" "\xe777\x2611" tt)
+      (puthash "emacs-lisp" "(\xe779)" tt)
+      (puthash "prolog" "\xe7a1" tt)
+      (puthash "fsharp" "\xe7a7" tt)
+      (puthash "rust" "\xe7a8" tt)
+      (puthash "d" "\xe7af" tt)
+      (puthash "erlang" "\xe7b1" tt)
+      (puthash "lua" "\xe620" tt)
+      (puthash "dart" "\xe798" tt)
+      (puthash "dart//l" "\xe798" tt)
+      (puthash "go" "\xe627" tt)
+      (puthash "git" "\xe630" tt)
+      (puthash "comint" "\xf41f" tt)
+      (puthash "fundamental" "\xf4a5" tt)
+      (puthash "shell" "\xe7a2" tt)
+      (puthash "elixir" "\xf499" tt)
+      (puthash "debugger" "\xf4a0" tt)
+      tt)))
 
 (defun pragmatapro-get-mode-icon ()
   (let ((z (gethash (downcase mode-name) pragmatapro-icons)))
