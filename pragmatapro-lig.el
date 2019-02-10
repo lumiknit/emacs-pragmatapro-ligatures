@@ -1,6 +1,6 @@
 ;; Emacs PramgataPro 0.827 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20181215
+;; Version: 20190210
 
 ;; Usage: Turn on 'pragmatapro-lig-mode (using add-hook, etc.).
 ;;        Or, use 'pragmatapro-lig-global-mode to turn on it globally.
@@ -226,7 +226,7 @@
     ("\">" #Xea90)
     ("_|_" #Xea97)
     )))
-(setq debug-on-error t)
+
 (defconst pragmatapro-lig-table
   (eval-when-compile
     (let ((v (make-vector 128 nil)))
@@ -266,17 +266,17 @@
 
 (defun pragmatapro-guess-range (start end)
   (save-excursion
-    (let ((s start) (e end))
-      (let ((ss (progn (goto-char s) (line-beginning-position))))
-        (while (and (> s ss)
-                    (aref pragmatapro-lig-use-table
-                          (min 127 (or (char-before s) 127))))
-          (setq s (1- s))))
-      (let ((ee (progn (goto-char e) (line-end-position))))
-        (while (and (< e ee)
-                    (aref pragmatapro-lig-use-table
-                          (min 127 (or (char-after e) 127))))
-          (setq e (1+ e))))
+    (let ((s start) (e end)
+          (ss (progn (goto-char start) (line-beginning-position)))
+          (ee (progn (goto-char end) (line-end-position))))
+      (while (and (> s ss)
+                  (aref pragmatapro-lig-use-table
+                        (min 127 (or (char-before s) 127))))
+        (setq s (1- s)))
+      (while (and (< e ee)
+                  (aref pragmatapro-lig-use-table
+                        (min 127 (or (char-after e) 127))))
+        (setq e (1+ e)))
       (cons s e))))
 
 (defun pragmatapro-remove-ligatures (start end)
