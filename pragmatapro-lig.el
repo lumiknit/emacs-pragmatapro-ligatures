@@ -2,9 +2,9 @@
 ;; Author: lumiknit (aasr4r4@gmail.com)
 ;; Version: 20190805
 
-;; Usage: Turn on 'pragmatapro-lig-mode (using add-hook, etc.).
-;;        Or, use 'pragmatapro-lig-global-mode to turn on it globally.
-;;        It's recommended to compile it before using.
+;; Usage: Use "M-x 'pragmatapro-lig-mode' RET" to turn on ligature minor mode.
+;;        Or, use 'pragmatapro-lig-global-mode to turn it on globally.
+;;        I recommend you to compile this file before load it.
 
 (eval-when-compile (defconst pragmatapro-lig-alist
   '(("[ERROR]" #Xe2c0)

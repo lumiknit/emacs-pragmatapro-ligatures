@@ -1,6 +1,5 @@
 # emacs-pragmatapro-ligatures
-PragmataPro Font Ligatures Support for Emacs
+PragmataPro Font Ligatures 0.828 Support for Emacs
 
 ## Sample
-<img src="./sample.gif">
-
+<img src="./sample.png">
