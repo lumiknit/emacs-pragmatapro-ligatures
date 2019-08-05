@@ -1,26 +1,26 @@
-;; Emacs PramgataPro 0.827 Ligatures Support
+;; Emacs PramgataPro 0.828 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20190210
+;; Version: 20190805
 
 ;; Usage: Turn on 'pragmatapro-lig-mode (using add-hook, etc.).
 ;;        Or, use 'pragmatapro-lig-global-mode to turn on it globally.
 ;;        It's recommended to compile it before using.
 
 (eval-when-compile (defconst pragmatapro-lig-alist
-  '(("[ERROR]" #Xe380)
-    ("[DEBUG]" #Xe381)
-    ("[INFO]" #Xe382)
-    ("[WARN]" #Xe383)
-    ("[WARNING]" #Xe384)
-    ("[ERR]" #Xe385)
-    ("[FATAL]" #Xe386)
-    ("[TRACE]" #Xe387)
-    ("[FIXME]" #Xe388)
-    ("[TODO]" #Xe389)
-    ("[BUG]" #Xe38a)
-    ("[NOTE]" #Xe38b)
-    ("[HACK]" #Xe38c)
-    ("[MARK]" #Xe38d)
+  '(;; ("[ERROR]" #Xe380)
+    ;; ("[DEBUG]" #Xe381)
+    ;; ("[INFO]" #Xe382)
+    ;; ("[WARN]" #Xe383)
+    ;; ("[WARNING]" #Xe384)
+    ;; ("[ERR]" #Xe385)
+    ;; ("[FATAL]" #Xe386)
+    ;; ("[TRACE]" #Xe387)
+    ;; ("[FIXME]" #Xe388)
+    ;; ("[TODO]" #Xe389)
+    ;; ("[BUG]" #Xe38a)
+    ;; ("[NOTE]" #Xe38b)
+    ;; ("[HACK]" #Xe38c)
+    ;; ("[MARK]" #Xe38d)
     ("!!" #Xe900)
     ("!=" #Xe901)
     ("!==" #Xe902)
@@ -73,6 +73,8 @@
     ("-\\/" #Xe989)
     ("-|>" #Xe98a)
     ("-<|" #Xe98b)
+    ("->-" #Xe98c)
+    ("-<-" #Xe98d)
     (".." #Xe990)
     ("..." #Xe991)
     ("..<" #Xe992)
@@ -171,6 +173,9 @@
     ("=/=" #Xea07)
     ("=~=" #Xea08)
     ("==>>" #Xea09)
+    ("=>=" #Xea0a)
+    ("=<=" #Xea0b)
+    ("=<" #Xea0c)
     ;;("≡≡" #Xea10)
     ;;("≡≡≡" #Xea11)
     ;;("≡:≡" #Xea12)
