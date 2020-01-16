@@ -1,6 +1,6 @@
 ;; Emacs PramgataPro 0.828 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20190805
+;; Version: 20200116
 
 ;; Usage: Use "M-x 'pragmatapro-lig-mode' RET" to turn on ligature minor mode.
 ;;        Or, use 'pragmatapro-lig-global-mode to turn it on globally.
@@ -360,14 +360,17 @@
 (define-minor-mode pragmatapro-lig-mode
   "Compose pragmatapro's ligatures."
   :lighter " PragLig"
-  (let ((inhibit-modification-hooks t))
+  (let ((inhibit-modification-hooks t)
+        (inhibit-read-only t))
     (if pragmatapro-lig-mode
         (progn ; Turn on
           (add-hook 'after-change-functions 'pragmatapro-update-ligatures t t)
-          (pragmatapro-update-ligatures 1 (buffer-size)))
+          (when (> (buffer-size) 0)
+            (pragmatapro-update-ligatures 1 (buffer-size))))
       ;; Turn off
       (remove-hook 'after-change-functions 'pragmatapro-update-ligatures t)
-      (pragmatapro-remove-ligatures 1 (buffer-size))))
+      (when (> (buffer-size) 0)
+        (pragmatapro-remove-ligatures 1 (buffer-size)))))
   pragmatapro-lig-mode)
 
 (defun pragmatapro-lig-mode-on ()
@@ -440,3 +443,5 @@
 (defun pragmatapro-get-mode-icon ()
   (let ((z (gethash (downcase mode-name) pragmatapro-icons)))
     (if z z mode-name)))
+
+(provide 'pragmatapro-lig)
