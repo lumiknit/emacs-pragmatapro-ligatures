@@ -14,7 +14,7 @@ Download `pragmatapro-lig.el`, and add below to your `.emacs` or `init.el`:
 (add-hook 'text-mode-hook 'pragmatapro-lig-mode)
 (add-hook 'prog-mode-hook 'pragmatapro-lig-mode)
 ;; or globally
-(pragmatapro-lig-global-mode)
+;;(pragmatapro-lig-global-mode)
 ```
 
 You can toggle the ligature mode in the current buffer by `M-x pragmatapro-lig-mode`.
