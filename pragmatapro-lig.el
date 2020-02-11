@@ -1,6 +1,6 @@
 ;; Emacs PramgataPro 0.828 Ligatures Support
 ;; Author: lumiknit (aasr4r4@gmail.com)
-;; Version: 20200116
+;; Version: 20200211
 
 ;; Usage: Use "M-x 'pragmatapro-lig-mode' RET" to turn on ligature minor mode.
 ;;        Or, use 'pragmatapro-lig-global-mode to turn it on globally.
@@ -219,7 +219,7 @@
     (">=>" #Xea26)
     (">>^" #Xea27)
     (">>|" #Xea28)
-    ("!>=" #Xea29)
+    (">!=" #Xea29)
     (">->" #Xea2a)
     ("??" #Xea40)
     ("?~" #Xea41)
