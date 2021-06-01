@@ -1,5 +1,5 @@
 # emacs-pragmatapro-ligatures
-[PragmataPro](https://www.fsd.it/shop/fonts/pragmatapro/) Font Ligatures 0.828 Support for Emacs
+[PragmataPro](https://www.fsd.it/shop/fonts/pragmatapro/) Font Ligatures 0.829 Support for Emacs
 
 ## Installation and Basic Usage
 
@@ -19,6 +19,6 @@ Download `pragmatapro-lig.el`, and add below to your `.emacs` or `init.el`:
 
 You can toggle the ligature mode in the current buffer by `M-x pragmatapro-lig-mode`.
 
-## Sample
+## Sample (0.828)
 
 ![sample-img](/sample.png)
