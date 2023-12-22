@@ -1,5 +1,5 @@
 # emacs-pragmatapro-ligatures
-[PragmataPro](https://www.fsd.it/shop/fonts/pragmatapro/) Font Ligatures 0.829 Support for Emacs
+[PragmataPro](https://www.fsd.it/shop/fonts/pragmatapro/) Font Ligatures 0.830 Support for Emacs
 
 ## Installation and Basic Usage
 
