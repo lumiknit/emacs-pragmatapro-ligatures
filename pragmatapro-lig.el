@@ -331,6 +331,7 @@
 
 (defun pragmatapro-update-ligatures (start end &optional l)
   "Update ligatures in start-end in the current buffer"
+  (unless (eq major-mode 'fundamental-mode)
   (let ((modified (buffer-modified-p))
         (inhibit-read-only t)
         (case-fold-search nil))
@@ -360,7 +361,7 @@
                         (put-text-property (+ s i) (+ s i 1) 'display
                                            (aref th i)))
                       (throw 'break nil))))))))))
-    (set-buffer-modified-p modified)))
+    (set-buffer-modified-p modified))))
 
 (define-minor-mode pragmatapro-lig-mode
   "Compose pragmatapro's ligatures."
